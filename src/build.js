@@ -103,12 +103,12 @@ if (fs.existsSync(imprintDir)) {
   console.log('  Copied imprint/ app definition');
 }
 
-// --- Step 5: Copy src/ if it exists ---
-const srcDir = path.join(ROOT, 'src');
-if (fs.existsSync(srcDir)) {
-  copyDirRecursive(srcDir, path.join(DIST, 'src'));
-  console.log('  Copied src/ tooling');
-}
+// --- Step 5: (intentionally empty) ---
+//
+// The template copied src/ into the app. Here, src/ holds only THIS build script —
+// dev tooling, useless to a user and confusing to an agent that reads its working
+// directory to work out what it's allowed to do. The app's real tooling is the .tsl
+// writer, compiled into dist/tool below. Nothing in src/ ships.
 
 // --- Step 5b: Compile the .tsl writer into the app ---
 //
@@ -137,20 +137,26 @@ if (fs.existsSync(path.join(toolDir, 'package.json'))) {
 }
 
 // --- Step 6: Copy other shipping files ---
-const copyFiles = ['README.md', 'LICENSE', 'version.txt', '.gitignore', 'package.json'];
+//
+// No package.json. THE SHIPPED APP HAS NO DEPENDENCIES AND MUST NEVER INSTALL ANY.
+//
+// The Imprint template shipped a package.json and ran `npm install --production`
+// inside the ZIP, so every user's first run pulled packages onto their machine. That
+// is a real failure surface — a sibling app carried a NATIVE addon that way, and a
+// native build that fails on a user's box breaks the app before it ever does its job,
+// with an error that means nothing to a guitarist.
+//
+// This app doesn't need it. The .tsl writer is compiled into dist/tool above and
+// depends on nothing but Node's own builtins. So there is no manifest to install
+// from, no registry to reach, and nothing to go wrong offline. Keep it that way: if
+// you ever find yourself adding a dependency here, put it in tool/ and compile it in
+// instead.
+const copyFiles = ['README.md', 'LICENSE', 'version.txt', '.gitignore'];
 for (const file of copyFiles) {
   const srcPath = path.join(ROOT, file);
   if (fs.existsSync(srcPath)) {
     fs.copyFileSync(srcPath, path.join(DIST, file));
   }
-}
-
-// --- Step 6b: Install npm dependencies in dist ---
-const distPkgJson = path.join(DIST, 'package.json');
-if (fs.existsSync(distPkgJson)) {
-
-  execSync('npm install --production', { cwd: DIST, stdio: 'pipe' });
-  console.log('  Installed npm dependencies in dist');
 }
 
 // --- Step 7: Create output/.gitkeep if output dir pattern is used ---
