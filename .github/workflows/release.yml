@@ -57,8 +57,8 @@ jobs:
 
             **Download `toneai-kat-skill-v${{ steps.version.outputs.VERSION }}.zip`** from the Assets below.
 
-            1. Go to **claude.ai in a web browser** and sign in. (Skills need a paid plan — Pro, Max, Team or Enterprise.)
-            2. Open **Settings → Capabilities → Skills**.
+            1. Go to **claude.ai in a web browser** and sign in. (Any plan, including Free. Make sure **code execution** is enabled in your settings — the skill needs it to run the generator.)
+            2. Open **Skills** in your settings (**Customize → Skills**, or **Settings → Capabilities → Skills**).
             3. Click **Upload skill** and choose the ZIP. Don't unzip it first.
             4. Done. ToneAI Kat is now in **every** chat, on the web and in the Claude mobile app.
 
