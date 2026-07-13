@@ -18,7 +18,8 @@ re-brief every session and one that knows their rig.
 ```yaml
 device: katana-mk2           # which KATANA they own — ASK ONCE, then never ask again
 instrument: guitar           # guitar | bass — what they actually play
-rig: "Les Paul, bridge humbucker"   # their guitar/bass, if they've told you
+rig: "Les Paul, P-90 neck / humbucker bridge"   # their guitar/bass, if they've told you
+pickups: mixed               # single-coil | humbucking | mixed — SETS THE NOISE GATE
 ```
 
 - **`device` is the important one.** Every patch is written for a specific amp, and a
@@ -28,6 +29,11 @@ rig: "Les Paul, bridge humbucker"   # their guitar/bass, if they've told you
 - **`rig` drives voicing.** Humbuckers want less gain than single coils; a Jazz Bass
   wants different mids than a Precision. If they mention their guitar in passing
   ("I'm on the Strat today"), record it and calibrate from then on.
+- **`pickups` drives the NOISE GATE**, which is a different thing and matters more. A
+  single coil (Strat/Tele, P-90, lipstick, foil) hums far more than a humbucker, and
+  worse the more gain is in front of it — so it needs a harder gate on the same patch.
+  Pass it to the writer as `pickupNoise` in the intent file. If you don't know, leave it
+  out rather than guess: over-gating a humbucker player chops their quiet notes.
 
 Also worth keeping in app scope:
 

@@ -30,17 +30,21 @@ import fs from 'node:fs'
 import path from 'node:path'
 import {
   writePatchTsl, tslString, tslFilename, profileForDevice, describePatch,
+  calibrateGateForPickup, defaultNoiseSuppressor,
   type TonePatch,
 } from './index'
 import { buildToneSchema } from './schema'
 import { vocabForDevice } from './vocab'
-import { KATANA_DEVICES, isKatanaDevice, isHardwareConfirmed, deviceLabel, type KatanaDevice } from './devices'
+import {
+  KATANA_DEVICES, isKatanaDevice, isHardwareConfirmed, deviceLabel, isPickupNoise,
+  type KatanaDevice, type PickupNoise,
+} from './devices'
 
 const PROG = 'katana-tsl'
 
 class UsageError extends Error {}
 
-function readIntent(file: string): { device: KatanaDevice; patch: TonePatch } {
+function readIntent(file: string): { device: KatanaDevice; patch: TonePatch; noise: PickupNoise } {
   let raw: string
   try {
     raw = fs.readFileSync(file, 'utf8')
@@ -70,8 +74,13 @@ function readIntent(file: string): { device: KatanaDevice; patch: TonePatch } {
     throw new UsageError('intent is missing a `patch` object')
   }
 
+  // How much the player's pickup hums. Optional, and an unknown value falls back to
+  // 'humbucking' — NO correction. Inventing a single coil the player doesn't have
+  // would over-gate them and chop their quiet notes, which is the worse failure.
+  const noise: PickupNoise = isPickupNoise(obj.pickupNoise) ? obj.pickupNoise : 'humbucking'
+
   validate(patch, device)
-  return { device, patch }
+  return { device, patch, noise }
 }
 
 /**
@@ -128,7 +137,21 @@ function cmdSchema(device: string): void {
 }
 
 function cmdWrite(file: string, outDir: string): void {
-  const { device, patch } = readIntent(file)
+  const { device, patch: raw, noise } = readIntent(file)
+
+  // THE GATE IS NOT NEGOTIABLE, and it is not left to the agent.
+  //
+  // Two corrections, both applied here rather than trusted to the model:
+  //
+  //   1. A patch with no noiseSuppressor gets one derived from its gain. Every patch
+  //      this project ever produced shipped with the gate OFF, because the writer never
+  //      wrote the byte and the template's donor is a clean patch with no use for one.
+  //      High-gain patches squealed on real hardware.
+  //   2. A single coil gets a higher threshold than a humbucker. Told the rule in a
+  //      prompt, a model gave a P-90 two more points where the rule asks for 8-12. A
+  //      prompt is guidance; this is a guarantee.
+  const ns = calibrateGateForPickup(raw.noiseSuppressor ?? defaultNoiseSuppressor(raw), noise)
+  const patch: TonePatch = { ...raw, noiseSuppressor: ns }
 
   // allowUnvalidated: every writer is offered, but the confidence is reported
   // rather than hidden — see the note printed below.

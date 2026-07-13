@@ -32,16 +32,36 @@ An intent file:
 ```json
 {
   "device": "katana-mk2",
+  "pickupNoise": "single-coil",
   "patch": {
     "name": "Rebel Rebel",
     "ampA": { "type": "Crunch", "gain": 55, "bass": 45, "middle": 60, "treble": 65, "presence": 55, "level": 65 },
     "booster": { "on": true, "type": "Treble Boost", "drive": 40, "tone": 60, "level": 55 },
     "fx1": { "on": true, "type": "Comp", "level": 50 },
     "delay": { "on": false, "type": "Digital", "timeMs": 400, "feedback": 30, "level": 40 },
-    "reverb": { "on": true, "type": "Room", "timeS": 1.2, "level": 35 }
+    "reverb": { "on": true, "type": "Room", "timeS": 1.2, "level": 35 },
+    "noiseSuppressor": { "on": true, "threshold": 25, "release": 50 }
   }
 }
 ```
+
+## The noise gate
+
+`noiseSuppressor` is not optional in spirit. Every patch this project produced before
+v0.11.0 shipped with the gate **off** — the writer never wrote the byte, and the golden
+template it clones is a clean patch, which has no use for one. Stack gain 85 on that and
+the amp howls the moment you touch the strings. A MkII owner reported exactly that.
+
+Omit it and the tool derives one from the gain rather than leaving it to chance. On for
+dirt, off for cleans.
+
+`pickupNoise` (`single-coil` | `humbucking` | `mixed`) raises the gate for a noisy
+pickup. A single coil — Strat/Tele, P-90, lipstick, foil — is an antenna: it hums, and
+worse the more gain sits in front of it. A humbucker cancels that by construction. The
+correction is applied **in code**, because a model told the rule in a prompt gave a P-90
+two more threshold points where the rule asks for 8-12. Omit the field and no correction
+is applied — over-gating a humbucker player chops their quiet notes, so the safe default
+is to do nothing.
 
 An intent naming an amp or effect the target device doesn't have is **rejected before
 any bytes are written**, with the device's real vocabulary in the error. That failure

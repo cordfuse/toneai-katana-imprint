@@ -130,6 +130,7 @@ rightly so.
 ```json
 {
   "device": "katana-mk2",
+  "pickupNoise": "single-coil",
   "patch": {
     "name": "Rebel Rebel",
     "ampA": { "type": "Crunch", "gain": 55, "bass": 45, "middle": 60, "treble": 65, "presence": 55, "level": 65 },
@@ -137,12 +138,46 @@ rightly so.
     "fx1": { "on": true, "type": "Comp", "sustain": 50, "attack": 40, "tone": 55, "level": 50 },
     "fx2": { "on": false, "type": "Chorus" },
     "delay": { "on": false, "type": "Digital", "timeMs": 400, "feedback": 30, "level": 40 },
-    "reverb": { "on": true, "type": "Room", "timeS": 1.2, "level": 35 }
+    "reverb": { "on": true, "type": "Room", "timeS": 1.2, "level": 35 },
+    "noiseSuppressor": { "on": true, "threshold": 25, "release": 50 }
   }
 }
 ```
 
 Knobs are **0–100**. Keep the patch name **under 16 characters** — the amp truncates it.
+
+### The noise gate is part of the tone
+
+**Set `noiseSuppressor` on every patch.** Any tone with real dirt — crunch, lead, high
+gain, or a booster pushing an already-gained amp — needs the gate **on**, or it hisses
+and squeals the moment the player touches the strings and the patch is unusable. Cleans
+and low-gain tones want it **off**, so note tails can bloom.
+
+Scale the threshold with the gain in front of it: roughly 15–25 at the edge of breakup,
+35–45 for high gain, 50+ only for extreme saturation. When unsure, go lower — a slightly
+open gate leaves a little hiss, but a gate set too high chops off quiet notes and sounds
+broken.
+
+This is not decoration. Every patch this project produced before v0.11.0 shipped with the
+gate off, and high-gain patches were genuinely unplayable on the real amp.
+
+### Tell the tool what pickups they have
+
+`pickupNoise` is `"single-coil"`, `"humbucking"`, or `"mixed"`.
+
+A single coil — a Strat/Tele pickup, a **P-90**, a lipstick, a foil — is an antenna. It
+hums, and it gets louder the more gain sits in front of it. A humbucker cancels that hum
+by construction. So the same patch needs **more gate** on a single coil than on a
+humbucker, and the tool raises the threshold for you when you declare it.
+
+- Both/only single coils → `"single-coil"`
+- Both/only humbuckers → `"humbucking"`
+- One of each, or you don't know which position they'll use → `"mixed"`
+- **You don't know their guitar at all → omit it.** The tool applies no correction, which
+  is the safe default: over-gating someone who has humbuckers chops their quiet notes.
+
+**So ask, once, and remember it** (see `MEMORY.md`). "What are you playing?" is a normal
+question between guitarists, and the answer changes the patch.
 
 **Use the two FX slots.** The KATANA has `fx1` and `fx2`. Reach for them whenever the
 sound genuinely calls for movement or shaping: chorus for shimmer and 80s cleans, phaser

@@ -71,3 +71,21 @@ export const deviceLabel = (device: KatanaDevice): string =>
 export function instrumentForDevice(device: KatanaDevice): KatanaInstrument {
   return DEVICE_INSTRUMENT.get(device) ?? (device.includes('bass') ? 'bass' : 'guitar')
 }
+
+/**
+ * How much the player's ACTIVE pickup hums.
+ *
+ * Ported from the web app's lib/gear.ts, where the full instrument model lives. The
+ * Imprint app has no gear UI — the AGENT knows the player's guitar (it asked, and it
+ * remembers), so it declares this in the intent file instead.
+ *
+ * A single coil is an antenna: it picks up mains hum and every switching supply in the
+ * room, and the more gain you put in front of it the louder that noise gets. A
+ * humbucker cancels it by construction. This is a fact about ELECTRICITY, and it
+ * decides how much noise gate a patch needs — which is why the CLI enforces it in code
+ * rather than trusting the agent to have remembered.
+ */
+export type PickupNoise = 'humbucking' | 'single-coil' | 'mixed'
+
+export const isPickupNoise = (v: unknown): v is PickupNoise =>
+  v === 'humbucking' || v === 'single-coil' || v === 'mixed'
