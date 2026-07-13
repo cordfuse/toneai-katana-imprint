@@ -1,0 +1,18 @@
+{
+  "name": "katana-tsl",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Deterministic BOSS KATANA .tsl writer — turns tone intent into a liveset the amp will actually load",
+  "license": "MIT",
+  "bin": { "katana-tsl": "dist/cli.js" },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "tsx --test src/**/__tests__/*.test.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

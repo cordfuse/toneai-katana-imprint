@@ -110,6 +110,32 @@ if (fs.existsSync(srcDir)) {
   console.log('  Copied src/ tooling');
 }
 
+// --- Step 5b: Compile the .tsl writer into the app ---
+//
+// The writer is TypeScript in tool/src, but what SHIPS has to be plain JavaScript:
+// the person who unzips this has an agent CLI and an amp, not a toolchain. So it
+// is compiled here, at build time, and the ZIP carries only the emitted JS. It has
+// no runtime dependencies and makes no network calls, so `node tool/cli.js` works
+// on a bare Node install, offline, forever.
+//
+// This is load-bearing, not a convenience: the agent MUST NOT hand-write a .tsl.
+// If the tool were missing from the ZIP, a helpful agent would try to produce the
+// liveset itself and emit a file the amp rejects. A build that cannot ship the
+// writer must fail loudly rather than quietly ship an app without it.
+const toolDir = path.join(ROOT, 'tool');
+if (fs.existsSync(path.join(toolDir, 'package.json'))) {
+  execSync('npm install --silent', { cwd: toolDir, stdio: 'pipe' });
+  execSync('npm run build', { cwd: toolDir, stdio: 'pipe' });
+
+  const toolDist = path.join(toolDir, 'dist');
+  const cli = path.join(toolDist, 'cli.js');
+  if (!fs.existsSync(cli)) {
+    throw new Error('tool build produced no cli.js — refusing to ship an app that cannot write a .tsl');
+  }
+  copyDirRecursive(toolDist, path.join(DIST, 'tool'));
+  console.log('  Compiled tool/ → dist/tool (the deterministic .tsl writer)');
+}
+
 // --- Step 6: Copy other shipping files ---
 const copyFiles = ['README.md', 'LICENSE', 'version.txt', '.gitignore', 'package.json'];
 for (const file of copyFiles) {

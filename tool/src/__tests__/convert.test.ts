@@ -1,0 +1,138 @@
+// Cross-device conversion: names translate to valid target vocabulary, numerics
+// survive untouched, effects with no counterpart drop cleanly, and the rendered
+// .tsl is a structurally valid liveset for the target generation.
+
+import { test } from 'node:test'
+import assert from 'node:assert/strict'
+import { convertIntent, convertTone, canConvert } from '../convert'
+import { vocabForDevice } from '../vocab'
+import type { TonePatch } from '../intent'
+
+const mk2Patch: TonePatch = {
+  name: 'Brown Test',
+  ampA: { type: 'Bogner Uber', gain: 80, bass: 50, middle: 60, treble: 65, presence: 55, level: 75 },
+  booster: { on: true, type: 'T-Scream', drive: 60, tone: 50, level: 55 },
+  fx1: { on: true, type: 'Phaser', rate: 40, depth: 55, reso: 30, level: 50 },
+  fx2: { on: true, type: 'Tera Echo', level: 40 }, // MkII-only — no Gen 3 equivalent
+  delay: { on: true, type: 'Analog', timeMs: 380, feedback: 30, level: 35 },
+  reverb: { on: true, type: 'Plate', timeS: 1.8, level: 25 },
+}
+
+test('canConvert only across proven, distinct generations', () => {
+  assert.equal(canConvert('katana-mk2', 'katana-mk3'), true)
+  assert.equal(canConvert('katana-mk3', 'katana-mk2'), true)
+  assert.equal(canConvert('katana-mk2', 'katana-go'), true, 'GO guitar has a verified writer')
+  assert.equal(canConvert('katana-go', 'katana-air'), true, 'GO <-> Air both convertible')
+  assert.equal(canConvert('katana-mk2', 'katana-mk2'), false, 'same device')
+  assert.equal(canConvert('katana-mk2', 'katana-mk1'), false, 'MkI has no convert vocabulary')
+  // Cross-instrument is blocked explicitly by the instrument gate, both directions.
+  assert.equal(canConvert('katana-mk2', 'katana-go-bass'), false, 'guitar tone -> bass rig blocked')
+  assert.equal(canConvert('katana-go', 'katana-go-bass'), false, 'GO guitar -> GO bass blocked')
+  assert.equal(canConvert('katana-go-bass', 'katana-mk2'), false, 'bass tone -> guitar rig blocked')
+  // Bass <-> bass IS allowed (same instrument, both convertible), both directions.
+  assert.equal(canConvert('katana-go-bass', 'katana-bass'), true, 'GO bass -> KATANA BASS allowed')
+  assert.equal(canConvert('katana-bass', 'katana-go-bass'), true, 'KATANA BASS -> GO bass allowed')
+})
+
+const goBassPatch: TonePatch = {
+  name: 'GO Bass Src',
+  ampA: { type: 'FLAT', gain: 55, bass: 65, middle: 45, treble: 50, presence: 40, level: 80 },
+  booster: { on: true, type: 'BASS DRV', drive: 50, tone: 50, level: 60 },
+  fx1: { on: true, type: 'T.WAH', rate: 40, depth: 50, level: 50 },
+  fx2: { on: false, type: 'CHORUS' },
+  delay: { on: true, type: 'STEREO', timeMs: 300, feedback: 25, level: 35 }, // GO-bass-only
+  reverb: { on: true, type: 'HALL', timeS: 2, level: 30 },
+}
+
+test('GO bass -> KATANA BASS: amps by name, GO-only delay falls back safely', () => {
+  const { patch, notes } = convertIntent(goBassPatch, 'katana-go-bass', 'katana-bass')
+  const vb = vocabForDevice('katana-bass')
+  // FLAT has no desktop KATANA BASS voice -> first voice (VINTAGE), noted.
+  assert.equal(patch.ampA.type, 'VINTAGE', 'FLAT -> VINTAGE fallback')
+  assert.ok(vb.amps.includes(patch.ampA.type))
+  assert.ok(notes.some(n => n.field === 'Amp'))
+  // BASS DRV exists on both -> name match.
+  assert.equal(patch.booster.type, 'BASS DRV')
+  // T.WAH -> T. WAH (normalized name match across the punctuation difference).
+  assert.equal(patch.fx1!.type, 'T. WAH')
+  // STEREO delay is GO-bass-only -> falls back to the first KATANA BASS delay.
+  assert.ok(vb.delays.includes(patch.delay.type), 'delay lands in target vocab')
+  assert.ok(notes.some(n => n.field === 'Delay'))
+  // numerics survive.
+  assert.equal(patch.delay.timeMs, 300)
+  assert.equal(patch.reverb.timeS, 2)
+})
+
+test('convertTone renders a valid KATANA BASS liveset from a GO bass tone', () => {
+  const { tsl } = convertTone(goBassPatch, 'katana-go-bass', 'katana-bass')
+  const j = JSON.parse(tsl)
+  assert.equal(j.device, 'KATANA BASS')
+  assert.equal(j.formatRev, '0000')
+  const keys = Object.keys(j.data[0][0].paramSet)
+  assert.equal(keys.length, 34)
+  assert.ok(keys.every(k => k.startsWith('UserPatch%')))
+})
+
+test('KATANA BASS -> GO bass: shared voices survive, renders a valid liveset', () => {
+  const bassPatch: TonePatch = { ...structuredClone(goBassPatch), ampA: { ...goBassPatch.ampA, type: 'MODERN' }, delay: { ...goBassPatch.delay, type: 'ANALOG' } }
+  const { patch } = convertIntent(bassPatch, 'katana-bass', 'katana-go-bass')
+  assert.equal(patch.ampA.type, 'MODERN', 'shared voice name survives')
+  const { tsl } = convertTone(bassPatch, 'katana-bass', 'katana-go-bass')
+  const j = JSON.parse(tsl)
+  assert.equal(j.device, 'KATANA:GO_bassmode')
+})
+
+test('MkII -> Gen 3: names land in the Gen 3 vocabulary', () => {
+  const v3 = vocabForDevice('katana-mk3')
+  const { patch, notes } = convertIntent(mk2Patch, 'katana-mk2', 'katana-mk3')
+
+  assert.equal(patch.ampA.type, 'BROWN', 'Bogner Uber -> BROWN character')
+  assert.ok(v3.amps.includes(patch.ampA.type))
+  assert.equal(patch.booster.type, 'T-SCREAM', 'booster matched by normalized name')
+  assert.ok(v3.boosters.includes(patch.booster.type))
+  assert.equal(patch.fx1!.type, 'PHASER')
+  assert.ok(v3.fx.includes(patch.fx1!.type))
+  // Tera Echo has no Gen 3 counterpart -> slot off, note recorded.
+  assert.equal(patch.fx2!.on, false, 'Tera Echo dropped')
+  assert.ok(notes.some(n => n.field === 'FX 2' && n.to === null))
+  assert.ok(v3.delays.includes(patch.delay.type), 'Analog -> ANALOG')
+  assert.ok(v3.reverbs.includes(patch.reverb.type), 'Plate -> PLATE')
+})
+
+test('numerics are carried across unchanged', () => {
+  const { patch } = convertIntent(mk2Patch, 'katana-mk2', 'katana-mk3')
+  assert.equal(patch.ampA.gain, 80)
+  assert.equal(patch.ampA.middle, 60)
+  assert.equal(patch.ampA.level, 75)
+  assert.equal(patch.booster.drive, 60)
+  assert.equal(patch.delay.timeMs, 380)
+  assert.equal(patch.reverb.timeS, 1.8)
+})
+
+test('conversion does not mutate the source intent', () => {
+  const before = structuredClone(mk2Patch)
+  convertIntent(mk2Patch, 'katana-mk2', 'katana-mk3')
+  assert.deepEqual(mk2Patch, before, 'source patch untouched')
+})
+
+test('convertTone renders a valid Gen 3 liveset', () => {
+  const { tsl, filename } = convertTone(mk2Patch, 'katana-mk2', 'katana-mk3')
+  const j = JSON.parse(tsl)
+  assert.equal(j.device, 'KATANA Gen3')
+  assert.equal(j.formatRev, '0000')
+  const ps = j.data[0][0].paramSet
+  const keys = Object.keys(ps)
+  assert.equal(keys.length, 80)
+  assert.ok(keys.every(k => k.startsWith('PATCH%')))
+  assert.equal(parseInt(ps['PATCH%AMP'][7], 16), 5, 'BROWN=5 written')
+  assert.ok(filename.endsWith('.tsl'))
+})
+
+test('Gen 3 -> MkII round-trips a shared character back to itself', () => {
+  // BROWN -> (canon brown) -> MkII 'Brown' -> (canon brown) -> Gen 3 BROWN
+  const mk3Patch: TonePatch = { ...structuredClone(mk2Patch), ampA: { ...mk2Patch.ampA, type: 'BROWN' } }
+  const down = convertIntent(mk3Patch, 'katana-mk3', 'katana-mk2')
+  assert.equal(down.patch.ampA.type, 'Brown')
+  const up = convertIntent(down.patch, 'katana-mk2', 'katana-mk3')
+  assert.equal(up.patch.ampA.type, 'BROWN', 'character survives the round trip')
+})

@@ -1,0 +1,25 @@
+{
+  // CommonJS on purpose. The compiled tool ships INSIDE the app ZIP and must run
+  // on a bare `node dist/cli.js` with no install step, no package manager, and no
+  // network — the user has an agent CLI and an amp, not a toolchain. CJS lets tsc
+  // inline the golden templates' JSON imports as plain requires; ESM would demand
+  // import attributes and a package type, for nothing gained here.
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "lib": ["ES2022"],
+    "types": ["node"],
+    "resolveJsonModule": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "strict": true,
+    "noUncheckedIndexedAccess": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "declaration": false,
+    "sourceMap": false
+  },
+  "include": ["src/**/*.ts", "src/**/*.json"],
+  "exclude": ["src/**/__tests__/**"]
+}
