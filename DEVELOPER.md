@@ -76,7 +76,13 @@ When inactive (production), the agent will:
 1. Strips dev mode from IMPRINT.md
 2. Generates SHA-256 checksum
 3. Creates one-liner agent files (CLAUDE.md, GEMINI.md, ANTIGRAVITY.md, AGENTS.md, .windsurfrules, .clinerules) redirecting to IMPRINT.md. ANTIGRAVITY.md is a speculative add for Google's Antigravity CLI (`agy`, Gemini CLI successor, sunset 2026-06-18) — agy doesn't currently auto-load convention files (no embedded path in the binary), so the file is harmless if ignored and ready when Google ships convention support.
-4. Copies `imprint/`, `src/`, README.md, LICENSE, package.json, version.txt
+4. Copies `imprint/`, README.md, LICENSE, version.txt
+5. Compiles `tool/` (the deterministic `.tsl` writer) into `dist/tool/`
+
+Note: `src/` and a `package.json` are deliberately NOT copied into the app. `src/`
+holds this build script — dev tooling, not app tooling. And the shipped app has no
+dependencies to install: the writer is compiled in and uses only Node builtins, so
+there is nothing for a user's machine to fetch, build, or fail at.
 
 ```bash
 node src/build.js

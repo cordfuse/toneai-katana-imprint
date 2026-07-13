@@ -177,7 +177,12 @@ Tell the developer the test session has been launched in a new window.
 2. Generates SHA-256 checksum
 3. Copies the clean `IMPRINT-USER.md` as `IMPRINT.md` into `dist/`
 4. Creates agent files (CLAUDE.md, GEMINI.md, ANTIGRAVITY.md, AGENTS.md, QWEN.md, .windsurfrules, .clinerules) in `dist/` — each is a one-liner redirecting to `IMPRINT.md`. `ANTIGRAVITY.md` is a speculative belt-and-braces add (Antigravity CLI doesn't auto-load convention files today, per a string-search of its binary on 2026-05-19) so the file is ready if Google ships convention support; harmless otherwise. Direct agy users to `agy -i "load IMPRINT.md and follow the instructions in it"` on first session; agy's `-c / --continue` resumes from there.
-5. Copies `imprint/`, `src/`, README.md, LICENSE, package.json, version.txt into `dist/`
+5. Copies `imprint/`, README.md, LICENSE, version.txt into `dist/`
+6. Compiles `tool/` (the deterministic `.tsl` writer) into `dist/tool/` — the build
+   FAILS rather than shipping an app that cannot write a liveset
+
+`src/` and `package.json` are deliberately not shipped: `src/` is this build script,
+and the app has no dependencies to install (the writer uses only Node builtins).
 
 ## Release
 
