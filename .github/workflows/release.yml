@@ -57,10 +57,12 @@ jobs:
 
             **Download `toneai-kat-skill-v${{ steps.version.outputs.VERSION }}.zip`** from the Assets below.
 
-            1. Go to **claude.ai** and sign in. (Skills need a paid plan — Pro, Max, Team or Enterprise.)
+            1. Go to **claude.ai in a web browser** and sign in. (Skills need a paid plan — Pro, Max, Team or Enterprise.)
             2. Open **Settings → Capabilities → Skills**.
             3. Click **Upload skill** and choose the ZIP. Don't unzip it first.
             4. Done. ToneAI Kat is now in **every** chat, on the web and in the Claude mobile app.
+
+            > **Import from a browser.** The Claude mobile app has no way to add a custom skill — it does not surface the import screen. Do this once at claude.ai in a browser (a phone browser works). After that the skill is on your account and the mobile app picks it up like any other chat.
 
             Ask for a tone — *"dial in the Comfortably Numb solo, I'm on a KATANA MkII with a Les Paul"* — and it hands you a `.tsl` liveset to import with BOSS Tone Studio.
 
