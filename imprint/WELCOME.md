@@ -41,7 +41,7 @@ Read `imprint/SESSION.md`. If `mode: singleton`:
 2. If lock exists:
    a. Read PID from lock
    b. Check if PID is still running (`kill -0` on unix, `Get-Process` on Windows)
-   c. Still running → refuse to start: "[App Name] is already running. Please use the existing session."
+   c. Still running → refuse to start: "ToneAI Kat is already running. Please use the existing session."
    d. Not running (stale lock) → delete lock, proceed
 3. If no lock → write `$PPID` to lock file, proceed
 4. At session end → delete lock file
@@ -57,7 +57,7 @@ Read `imprint/SESSION.md` and check if `update.enabled` is true. If so:
 3. Fetch latest version: `curl -s https://api.github.com/repos/{owner}/{repo}/releases/latest` (timeout 5 seconds)
 4. Compare `tag_name` against local `version.txt`
 5. If newer version exists, ask the user:
-   "[App Name]: A new version is available (vX.Y.Z). Want me to download and apply the update? I'll restart automatically when done."
+   "ToneAI Kat: A new version is available (vX.Y.Z). Want me to download and apply the update? I'll restart automatically when done."
 6. If user confirms: download ZIP from release assets, extract over current directory, restart agent
 7. If offline or API fails: skip silently, never block session start
 
@@ -147,20 +147,20 @@ Before creating or rebuilding, check if an existing shortcut already matches the
 
 **macOS** — read metadata from the .app bundle's Info.plist:
 ```bash
-EXISTING_VERSION=$(defaults read ~/Desktop/[Your\ App\ Name].app/Contents/Info.plist ImprintVersion 2>/dev/null)
-EXISTING_PATH=$(defaults read ~/Desktop/[Your\ App\ Name].app/Contents/Info.plist ImprintPath 2>/dev/null)
+EXISTING_VERSION=$(defaults read ~/Desktop/ToneAI\ Kat.app/Contents/Info.plist ImprintVersion 2>/dev/null)
+EXISTING_PATH=$(defaults read ~/Desktop/ToneAI\ Kat.app/Contents/Info.plist ImprintPath 2>/dev/null)
 ```
 
 **Linux** — grep metadata from the .desktop file:
 ```bash
-EXISTING_VERSION=$(grep '^X-Imprint-Version=' ~/Desktop/[Your\ App\ Name].desktop 2>/dev/null | cut -d= -f2)
-EXISTING_PATH=$(grep '^X-Imprint-Path=' ~/Desktop/[Your\ App\ Name].desktop 2>/dev/null | cut -d= -f2)
+EXISTING_VERSION=$(grep '^X-Imprint-Version=' ~/Desktop/ToneAI\ Kat.desktop 2>/dev/null | cut -d= -f2)
+EXISTING_PATH=$(grep '^X-Imprint-Path=' ~/Desktop/ToneAI\ Kat.desktop 2>/dev/null | cut -d= -f2)
 ```
 
 **Windows** — read the Description field from the .lnk file (pipe-delimited `Imprint|version|path`):
 ```powershell
 $WshShell = New-Object -ComObject WScript.Shell
-$Existing = $WshShell.CreateShortcut("$env:USERPROFILE\Desktop\[Your App Name].lnk")
+$Existing = $WshShell.CreateShortcut("$env:USERPROFILE\Desktop\ToneAI Kat.lnk")
 $Meta = $Existing.Description -split '\|'
 $ExistingVersion = $Meta[1]
 $ExistingPath = $Meta[2]
@@ -174,22 +174,22 @@ $ExistingPath = $Meta[2]
 
 ### Create the shortcut
 
-**macOS** — create a native `.app` bundle at `~/Desktop/[Your App Name].app`:
+**macOS** — create a native `.app` bundle at `~/Desktop/ToneAI Kat.app`:
 
 1. Create the directory structure:
 ```bash
-mkdir -p ~/Desktop/[Your\ App\ Name].app/Contents/MacOS
-mkdir -p ~/Desktop/[Your\ App\ Name].app/Contents/Resources
+mkdir -p ~/Desktop/ToneAI\ Kat.app/Contents/MacOS
+mkdir -p ~/Desktop/ToneAI\ Kat.app/Contents/Resources
 ```
 
-2. Create the launch script at `~/Desktop/[Your App Name].app/Contents/MacOS/launch`:
+2. Create the launch script at `~/Desktop/ToneAI Kat.app/Contents/MacOS/launch`:
 ```bash
 #!/bin/bash
 osascript -e 'tell app "Terminal" to do script "cd \"<absolute-cwd-path>\" && <agent> \"hello\""'
 ```
 Then `chmod +x` the launch script.
 
-3. Create `~/Desktop/[Your App Name].app/Contents/Info.plist` with version and path metadata:
+3. Create `~/Desktop/ToneAI Kat.app/Contents/Info.plist` with version and path metadata:
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -200,11 +200,11 @@ Then `chmod +x` the launch script.
     <key>CFBundleIconFile</key>
     <string>icon</string>
     <key>CFBundleName</key>
-    <string>[Your App Name]</string>
+    <string>ToneAI Kat</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleIdentifier</key>
-    <string>com.imprint.[your-app-name]</string>
+    <string>com.imprint.toneai-kat</string>
     <key>LSUIElement</key>
     <false/>
     <key>ImprintVersion</key>
@@ -226,19 +226,19 @@ sips -z 32 32 /tmp/app-icon.png --out /tmp/app.iconset/icon_16x16@2x.png 2>/dev/
 sips -z 64 64 /tmp/app-icon.png --out /tmp/app.iconset/icon_32x32@2x.png 2>/dev/null
 sips -z 256 256 /tmp/app-icon.png --out /tmp/app.iconset/icon_128x128@2x.png 2>/dev/null
 sips -z 512 512 /tmp/app-icon.png --out /tmp/app.iconset/icon_256x256@2x.png 2>/dev/null
-iconutil -c icns /tmp/app.iconset -o ~/Desktop/[Your\ App\ Name].app/Contents/Resources/icon.icns 2>/dev/null
+iconutil -c icns /tmp/app.iconset -o ~/Desktop/ToneAI\ Kat.app/Contents/Resources/icon.icns 2>/dev/null
 rm -rf /tmp/app.iconset /tmp/app-icon.png
 ```
 
-5. Refresh icon: `touch ~/Desktop/[Your\ App\ Name].app`
+5. Refresh icon: `touch ~/Desktop/ToneAI\ Kat.app`
 
 If icon conversion fails, the app still works — just without a custom icon.
 
-**Linux** — create `~/Desktop/[Your App Name].desktop` with version and path metadata:
+**Linux** — create `~/Desktop/ToneAI Kat.desktop` with version and path metadata:
 ```ini
 [Desktop Entry]
 Type=Application
-Name=[Your App Name]
+Name=ToneAI Kat
 Exec=bash -c 'cd "<absolute-cwd-path>" && <agent> "hello"'
 Terminal=true
 Icon=<absolute-path-to-imprint/icon.svg>
@@ -250,7 +250,7 @@ Then `chmod +x` the file.
 **Windows** — create a shortcut on the desktop using PowerShell with metadata in the Description field:
 ```powershell
 $WshShell = New-Object -ComObject WScript.Shell
-$Shortcut = $WshShell.CreateShortcut("$env:USERPROFILE\Desktop\[Your App Name].lnk")
+$Shortcut = $WshShell.CreateShortcut("$env:USERPROFILE\Desktop\ToneAI Kat.lnk")
 $Shortcut.TargetPath = "cmd.exe"
 $Shortcut.Arguments = '/k cd /d "<absolute-cwd-path>" && <agent> "hello"'
 $Shortcut.WorkingDirectory = "<absolute-cwd-path>"
@@ -270,7 +270,7 @@ If Node.js is installed, skip to the next step.
 
 If missing, install a portable copy to `~/.imprint/node/`. **Ask the user first:**
 
-> **[Your App Name]**: I need Node.js to run some tools. It's not installed on your system — want me to install a portable copy? It won't touch your system files. (~50MB download)
+> **ToneAI Kat**: I need Node.js to run some tools. It's not installed on your system — want me to install a portable copy? It won't touch your system files. (~50MB download)
 
 **Wait for the user to confirm before proceeding.**
 
@@ -300,18 +300,43 @@ The desktop shortcut's launch script should also prepend this path.
 
 ## Step 4 — Greet
 
-The greeting depends on what happened with the shortcut:
+The greeting depends on what happened with the shortcut.
+
+Keep it SHORT. A player wants to ask for a tone, not read a manual. Lead with what
+they can do, and ask the one question you actually need — which amp.
 
 **First creation (shortcut was just created for the first time):**
-> **[Your App Name]**: I put a **[Your App Name]** shortcut on your desktop — next time just double-click it. [Your welcome message.]
+> **ToneAI Kat**: I put a **ToneAI Kat** shortcut on your desktop — next time just
+> double-click it.
+>
+> Tell me a sound and I'll dial it in: a song, an artist, or just how you want it to
+> feel. I'll research the real rig and write you a `.tsl` you can import in BOSS Tone
+> Studio.
+>
+> Which KATANA are you on? (MkII, Gen 3, MkI, KATANA:AIR, KATANA:GO, KATANA Bass,
+> WAZA-AIR — guitar or bass.)
 
-**Shortcut already matched (skipped) or rebuilt silently or headless environment:**
-> **[Your App Name]**: [Your welcome message.]
+**Shortcut already matched (skipped) or rebuilt silently, or headless environment:**
+> **ToneAI Kat**: Tell me a sound and I'll dial it in: a song, an artist, or just how
+> you want it to feel. I'll research the real rig and write you a `.tsl` you can import
+> in BOSS Tone Studio.
+>
+> Which KATANA are you on? (MkII, Gen 3, MkI, KATANA:AIR, KATANA:GO, KATANA Bass,
+> WAZA-AIR — guitar or bass.)
 
 Only mention the shortcut when it is newly created for the first time.
+
+**If their amp is already in memory, don't ask again.** Greet them and say what you
+remember, so they can correct it in one line:
+
+> **ToneAI Kat**: Welcome back. Still on the KATANA MkII with the Les Paul? Tell me a
+> sound and I'll dial it in.
+
+Do not dump the device table, the file format, or a feature list into the greeting.
+They asked for tones, not documentation.
 
 ## Error handling
 
 If the project working directory is not set or not accessible:
 
-> **[Your App Name]**: I need access to the project directory to get started. Please make sure I'm running in the right location.
+> **ToneAI Kat**: I need access to the project directory to get started. Please make sure I'm running in the right location.

@@ -56,6 +56,10 @@ touching anyone's repository.
   friction with no safety benefit — the whitelist IS the safety decision.
 - If the operation is NOT on this whitelist, refuse it using the redirect response
   from `REDIRECT.md`.
-- **Never install software.** Not with permission, not with a good reason. If
-  something appears to be missing, say so plainly and stop — do not attempt to
-  fetch it.
+- **Never install software — with exactly one exception.** If Node.js is missing, the
+  welcome flow may install a portable copy into `~/.imprint/node/`, and only after
+  asking the user and getting a yes. That is the one thing this app cannot run
+  without, it goes in the user's own Imprint directory rather than their system, and
+  it is a plain Node runtime — not a package, not a native addon, not a registry
+  fetch. Nothing else may be installed, ever, for any reason. If something else
+  appears to be missing, say so plainly and stop.

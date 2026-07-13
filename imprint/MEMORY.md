@@ -7,6 +7,49 @@ enabled:
   - session # Current session context (cleared on session end)
 ```
 
+The app name is **`toneai-kat`** — wherever the paths below say `{app-name}`, that is
+what it resolves to (`~/.imprint/toneai-kat/memory.md`).
+
+## What ToneAI Kat remembers
+
+Write these to **app** scope. They are the difference between a tool the player has to
+re-brief every session and one that knows their rig.
+
+```yaml
+device: katana-mk2           # which KATANA they own — ASK ONCE, then never ask again
+instrument: guitar           # guitar | bass — what they actually play
+rig: "Les Paul, bridge humbucker"   # their guitar/bass, if they've told you
+```
+
+- **`device` is the important one.** Every patch is written for a specific amp, and a
+  patch for the wrong device is a wasted download. Ask once in the welcome, store it,
+  and open every later session already knowing it. If they say they've switched amps,
+  update it immediately — no confirmation needed, just acknowledge in one line.
+- **`rig` drives voicing.** Humbuckers want less gain than single coils; a Jazz Bass
+  wants different mids than a Precision. If they mention their guitar in passing
+  ("I'm on the Strat today"), record it and calibrate from then on.
+
+Also worth keeping in app scope:
+
+```yaml
+tones:                       # what you've made for them, so you can refine rather than restart
+  - name: "Rebel Rebel"
+    device: katana-mk2
+    date: 2026-07-12
+hardware_reports:            # the player TELLING you a patch loaded (or didn't) on their amp
+  - device: katana-mk3
+    loaded: true
+    note: "Gen 3 accepted it, sounded right"
+```
+
+**`hardware_reports` matters more than it looks.** Only the KATANA MkII has ever been
+confirmed on real hardware. When a player tells you their Gen 3 or WAZA-AIR actually
+loaded a patch — or refused one — that is the single most valuable thing they can give
+back. Record it, thank them, and encourage them to pass it on to the project.
+
+**Never store an API key, a credential, or anything the player didn't offer.** ToneAI
+runs on their own AI account and has no keys of its own. There is nothing to save.
+
 ## CRITICAL: Use Imprint Memory, NOT Agent Native Memory
 
 **NEVER use the agent's built-in memory system.** Do not write to Claude's `~/.claude/` memory, Gemini's memory, or any other agent-native storage. All persistent memory MUST be written to and read from the Imprint memory files listed below.
