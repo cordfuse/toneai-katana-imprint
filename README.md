@@ -1,119 +1,98 @@
-# Imprint
+# ToneAI Kat
 
-Build and distribute AI agent apps that run on the user's existing Claude, Gemini, or OpenAI account. No API keys to set up. No extra costs to the developer or the user.
+Tell ToneAI Kat what you want to sound like — a song, an artist, or just a feeling. It researches the original rig, dials in a patch for your BOSS KATANA, and writes you a `.tsl` liveset you import with BOSS Tone Studio.
 
-Define your agent's identity, permissions, constraints, memory, and welcome flow in a handful of `.md` files. Ship it as a ZIP or a platform installer. Users open it in any supported agent CLI on a desktop OS. The agent introduces itself, creates a desktop shortcut, and just works.
-
-**See it in action:** [ToneAI](https://github.com/cordfuse/toneai-nux-imprint) — an open-source guitar tone assistant built on Imprint.
-
-**Fork this repo to build your own.**
+It runs on your existing AI account. No API key, no extra subscription.
 
 ---
 
-## For Users
+## Getting started
 
-### CLI agent on desktop (Mac, Windows, Linux)
+### The easy way — Claude web and mobile (start here)
 
-1. Download the ZIP from the app's GitHub Releases page
-2. Extract and open the folder in any supported agent
-3. Say hello — the agent introduces itself and creates a desktop shortcut
+No terminal, no install, works on your phone.
 
-**Supported agents:**
+1. Download **`toneai-kat-skill-v<version>.zip`** from the [latest release](https://github.com/cordfuse/toneai-katana-imprint/releases/latest).
+2. At **claude.ai → Settings → Capabilities → Skills**, click **Upload skill** and choose the ZIP. Don't unzip it.
+3. That's it. ToneAI Kat is in every chat from then on, web and mobile.
 
-| Agent | Command | Notes |
+Ask for a tone — *"dial in the Comfortably Numb solo, I'm on a KATANA MkII with a Les Paul"* — and it hands you the `.tsl` to import.
+
+It asks once which KATANA you own and what you play, then remembers. The skill carries the patch writer and runs entirely inside Claude's sandbox: no network, no dependencies. The bytes are identical to the desktop app's — it is the same writer.
+
+Skills need a paid Claude plan (Pro, Max, Team, or Enterprise).
+
+### Desktop (agent CLI)
+
+For local files and offline use. **This one needs a command line** — if that's not for you, the skill above gives you the same patches.
+
+1. Download `toneai-katana-imprint-v<version>.zip` from the [latest release](https://github.com/cordfuse/toneai-katana-imprint/releases/latest) and extract it.
+2. Open the folder in an agent CLI and say hello.
+
+No install step: the writer ships compiled, with no dependencies and no network calls. It runs on a bare Node.
+
+**Supported agents:** Claude Code (`claude`), Gemini CLI (`gemini`), Antigravity CLI (`agy`), Codex (`codex`), OpenCode (`opencode`), Qwen Code (`qwen`).
+
+---
+
+## The one rule
+
+**The agent never writes a `.tsl` file.** It decides the tone — the amp, the gain staging, the EQ, the effects — and a deterministic writer turns that decision into bytes.
+
+This is not fussiness. A `.tsl` is a byte-level format. A language model asked to emit one directly produces something that *looks* right — well-formed JSON, plausible section names — and is subtly wrong: a missing section, a key with the wrong prefix, an amp index that decodes to a different amp. BOSS Tone Studio then rejects the file, or worse, loads a tone you didn't design.
+
+**A patch the amp rejects is worse than no patch**, because the player can't tell the tool's mistake from their own. So the model is constrained to *intent*, checked against the target device's own vocabulary, and the byte layout happens in code, from templates cloned off real exports.
+
+See [`tool/README.md`](tool/README.md) for the writer.
+
+## Supported devices
+
+Nine, across every KATANA generation:
+
+| id | amp | instrument |
 |---|---|---|
-| Claude Code | `claude` | Anthropic's CLI |
-| Gemini CLI | `gemini` | Google's official CLI. **⚠ Sunsets 2026-06-18** — Google retires it on that date in favor of Antigravity CLI (below); existing Imprint apps targeting `gemini` keep working until the cutover. |
-| Antigravity CLI | `agy` | Google's official Gemini CLI successor ([antigravity-cli](https://github.com/google-antigravity/antigravity-cli)). Go-based, install via curl script. Imprint dist builds emit `ANTIGRAVITY.md` alongside `GEMINI.md` so a future agy convention-file load Just Works; today agy doesn't appear to auto-load any of the standard convention files (no embedded path in the binary), so direct users to `agy -i "load IMPRINT.md and follow the instructions in it"` for the first session — agy persists the conversation, so it's a one-time prompt per workspace. |
-| Codex CLI | `codex` | OpenAI's CLI |
-| OpenCode | `opencode` | Open-source alternative |
-| Qwen Code | `qwen` | Alibaba's CLI — Gemini CLI fork. Flag surface mirrors Gemini (`-i` for interactive, `--yolo` for auto-approve). |
+| `katana-mk2` | KATANA MkII | guitar |
+| `katana-mk3` | KATANA Gen 3 | guitar |
+| `katana-mk1` | KATANA MkI | guitar |
+| `katana-air` | KATANA:AIR | guitar |
+| `katana-go` | KATANA:GO | guitar |
+| `katana-go-bass` | KATANA:GO (bass mode) | bass |
+| `katana-bass` | KATANA Bass (110 / 210 / Head) | bass |
+| `waza-air` | WAZA-AIR | guitar |
+| `waza-air-bass` | WAZA-AIR Bass | bass |
 
-### Not supported
+### Which of these are actually proven
 
-Imprint requires a CLI agent with local filesystem access. Chat interfaces — web, mobile, and desktop — are **not viable distribution targets**. Tested 2026-05-04:
+Two different claims, easy to confuse:
 
-**Desktop chat apps:**
-- **Claude Desktop (Chat / Cowork / Projects):** Hardened against persona injection. Chat and Cowork modes refuse pipe install and flag IMPRINT.md as a jailbreak vector. Cowork has a locked system prompt that cannot be overridden. Projects mode doesn't recursively load subdirectory files so `imprint/*.md` never enters context.
-- **ChatGPT Desktop:** Sandboxed — no local network or filesystem access.
-- **Gemini Desktop:** Requires manually seeding each new project with the ZIP and a prompt. Not viable as a recurring tool.
+- **format** — the writer round-trips against a real `.tsl` export of that device's format. True for all nine.
+- **real amp** — a patch from this writer has been loaded into the physical amp and heard. **True for the KATANA MkII only**, because that is the amp the author owns.
 
-**Web/mobile:**
-- **Claude.ai web/mobile:** One-off only — each new chat requires re-attaching the ZIP and re-prompting.
-- **ChatGPT web:** Safety layer rejects the persona-takeover pattern.
-- **Gemini web:** Emits a JSON output file instead of running as the agent.
+The rest is careful work and probably right. "Probably right" is not "verified". If you own anything other than a MkII, load a patch and tell us — working or broken. That report is the single most useful thing you can give this project.
 
-If you're shipping an Imprint app, target CLI agents only. Direct users who can't install a CLI to a hosted alternative — Imprint isn't the right shape for chat interfaces.
+## The noise gate
 
----
+Every patch this project produced before v0.11.0 shipped with the noise gate **off**. The writer never wrote the byte, and the golden template it clones is a clean patch, which has no use for one. Stack gain 85 on that and the amp howls the moment you touch the strings. A MkII owner reported exactly that, and he was right.
 
-## For Developers
+The writer now owns that byte. The gate is on for dirt, off for cleans, and scaled to the gain in front of it. Tell it your pickups and it raises the gate for a single coil — a Strat/Tele pickup, a P-90, a lipstick, a foil — because those hum, and worse the more gain sits in front of them, where a humbucker cancels it by construction.
 
-### Fork and Customize
+That correction is applied **in code**, not asked for in a prompt: told the rule, the model gave a P-90 two more threshold points where the rule asks for eight to twelve. If a rule has to be true, enforce it in code.
 
-1. Fork this repo
-2. Edit files in `./imprint/` to define your agent
-3. Say `guide` on first dev session — the agent walks you through setup step by step
-4. Say `demo` to test user mode — builds and launches the locked persona in a new terminal
-5. Tag a release (`v$(cat version.txt)`) — CI builds and publishes a ZIP
+## Development
 
-Dev mode is implicit — if you're in the repo with `IMPRINT-DEV.md`, you're in dev mode. No setup needed.
+Built on [Imprint](https://github.com/cordfuse/imprint) — the agent's identity, permissions, constraints and memory are `.md` files in `imprint/`, and `IMPRINT.md` is the engine that loads them.
 
-### How It Works
-
-- **During development**, agent files point to `IMPRINT-DEV.md` — no persona constraints while coding
-- **At build time**, `src/build.js` strips dev mode, generates agent files and checksums
-- **In production**, the user's agent reads `IMPRINT.md` → `imprint/*.md` — locked persona, scoped permissions
-- **Memory** persists to `~/.imprint/{app-name}/` — not the agent's native memory system
-
-### Project Structure
-
-```
-IMPRINT-USER.md      # Engine — loads ./imprint/, stripped in release builds
-IMPRINT-DEV.md       # Dev workflow — build, test, spawn agent CLI
-DEV-GUIDE.md           # Guided first-time setup walkthrough
-CLAUDE.md              # One-liner → IMPRINT-DEV.md (dev) or IMPRINT.md (release)
-GEMINI.md              # Same — used by Gemini CLI (sunsets 2026-06-18)
-ANTIGRAVITY.md         # Same — for Antigravity CLI (`agy`); written speculatively, agy doesn't auto-load it yet but file is harmless
-AGENTS.md              # Same — Codex / OpenCode / generic
-.windsurfrules         # Same
-.clinerules            # Same
-imprint/
-  IDENTITY.md          # Agent name, personality, tone
-  PERMISSIONS.md       # Whitelist of permitted operations
-  CONSTRAINTS.md       # Exhaustive blacklist
-  WELCOME.md           # Welcome flow — installer detection, shortcut, greeting
-  REDIRECT.md          # Canned response for denied requests
-  SESSION.md           # Session mode, CWD mode, bash policy, update config
-  MEMORY.md            # Memory scopes and write rules
-  icon.svg             # App icon (desktop shortcut)
-  agents/              # Per-agent permission configs
-src/
-  build.js             # Builds production output
-.github/workflows/
-  release.yml          # CI: build, ZIP, publish to GitHub Releases
-examples/              # Example apps (recipe-box, os-manager, code-assistant)
-version.txt            # Single source of truth for version
+```bash
+node src/build.js     # → ~/.imprint-test (dev), or ./dist + ./dist-skill (CI)
+cd tool && npm test   # 85 tests
 ```
 
-> **Template placeholders:** `[Your App Name]` and `[Your Company]` in the imprint/ files are meant to be replaced when you fork. They are intentional — this is a template.
+`src/build.js` compiles the writer into the app and packages the Claude Skill, and **fails the build** if the writer cannot produce a `.tsl`. An app that cannot write a liveset is one whose agent gets tempted to hand-write one.
 
-### User-mode tooling
+Tag `v$(cat version.txt)` and CI publishes both ZIPs.
 
-User-mode scripts can be **Node.js/TypeScript** or **Python**. If Node.js is missing, Imprint installs a portable copy to `~/.imprint/node/` (no sudo/UAC). The build script handles `npm install` automatically.
-
----
-
-## Showcase
-
-Apps built on Imprint:
-
-| App | Description |
-|---|---|
-| [ToneAI](https://github.com/cordfuse/toneai-nux-imprint) | AI guitar tone assistant — NUX MightyAmp QR presets for any song, album, or artist |
-
-*Built something with Imprint? Open a PR to add it here.*
+See [DEVELOPER.md](DEVELOPER.md) for the Imprint engine itself.
 
 ---
 
-<sub>[Imprint](https://github.com/cordfuse/imprint) is maintained by [Cordfuse](https://github.com/cordfuse).</sub>
+<sub>Built on [Imprint](https://github.com/cordfuse/imprint) by [Cordfuse](https://github.com/cordfuse).</sub>
