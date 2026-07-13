@@ -1,0 +1,45 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Edit",
+      "Write",
+      "Glob",
+      "Grep",
+      "WebSearch",
+      "Bash(*)"
+    ],
+    "deny": [
+      "Edit(imprint/**)",
+      "Edit(IMPRINT*)",
+      "Edit(CLAUDE.md)",
+      "Edit(GEMINI.md)",
+      "Edit(AGENTS.md)",
+      "Edit(.windsurfrules)",
+      "Edit(.clinerules)",
+      "Edit(src/**)",
+      "Edit(package.json)",
+      "Edit(version.txt)",
+      "Edit(README.md)",
+      "Edit(LICENSE)",
+      "Edit(.gitignore)",
+      "Edit(.github/**)",
+      "Edit(DEV-GUIDE.md)",
+      "Write(imprint/**)",
+      "Write(IMPRINT*)",
+      "Write(CLAUDE.md)",
+      "Write(GEMINI.md)",
+      "Write(AGENTS.md)",
+      "Write(.windsurfrules)",
+      "Write(.clinerules)",
+      "Write(src/**)",
+      "Write(package.json)",
+      "Write(version.txt)",
+      "Write(README.md)",
+      "Write(LICENSE)",
+      "Write(.gitignore)",
+      "Write(.github/**)",
+      "Write(DEV-GUIDE.md)"
+    ]
+  }
+}

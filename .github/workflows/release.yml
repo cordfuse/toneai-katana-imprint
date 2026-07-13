@@ -1,0 +1,43 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build
+        run: node src/build.js
+
+      - name: Read version
+        id: version
+        run: echo "VERSION=$(cat version.txt)" >> "$GITHUB_OUTPUT"
+
+      - name: Package release
+        run: |
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          REPO_NAME="${{ github.event.repository.name }}"
+          cd dist
+          zip -r "../${REPO_NAME}-v${VERSION}.zip" .
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            *-v*.zip
+            dist/.imprint-checksum

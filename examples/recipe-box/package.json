@@ -1,0 +1,16 @@
+{
+  "name": "recipe-box",
+  "version": "0.0.0-see-version.txt",
+  "description": "Chef Remy — an Imprint recipe assistant example",
+  "main": "dist/formatter.js",
+  "scripts": {
+    "build": "tsc",
+    "format": "node dist/formatter.js",
+    "test": "echo \"No tests configured yet\" && exit 0"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  },
+  "license": "MIT"
+}
