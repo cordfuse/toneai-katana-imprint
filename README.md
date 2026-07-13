@@ -13,7 +13,7 @@ It runs on your existing AI account. No API key, no extra subscription.
 No terminal, no install, works on your phone.
 
 1. Download **`toneai-kat-skill-v<version>.zip`** from the [latest release](https://github.com/cordfuse/toneai-katana-imprint/releases/latest).
-2. In a **web browser**, go to claude.ai and open your **Skills** settings (**Customize → Skills**), click **Upload skill** and choose the ZIP. Don't unzip it.
+2. In a **web browser**, go to claude.ai → **Settings → Skills** (beneath Customize), click **Upload skill** and choose the ZIP. Don't unzip it.
 3. That's it. ToneAI Kat is in every chat from then on, web and mobile.
 
 > **The import has to happen in a browser.** The Claude mobile app doesn't surface the skill-import screen — there's no way to add a custom skill from the app. Do it once at claude.ai in a browser (a phone browser is fine); after that the skill lives on your account and the mobile app picks it up like any other chat.
