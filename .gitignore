@@ -8,3 +8,4 @@ dist/
 
 # tool build output — compiled into the release ZIP by src/build.js
 tool/dist/
+dist-skill/

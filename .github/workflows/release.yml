@@ -34,10 +34,47 @@ jobs:
           cd dist
           zip -r "../${REPO_NAME}-v${VERSION}.zip" .
 
+      # ToneAI Kat in Claude web and on a phone. SKILL.md + the compiled .tsl writer, in
+      # one ZIP imported at claude.ai under Settings > Capabilities > Skills. No install,
+      # no terminal. The sandbox runs the same writer the desktop app runs, so the bytes
+      # are identical.
+      - name: Package Claude Skill
+        run: |
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          cd dist-skill
+          zip -r "../toneai-kat-skill-v${VERSION}.zip" .
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
+          body: |
+            ## Install
+
+            ### Claude web and mobile (Claude Skill) — START HERE
+
+            **No terminal, no install, works on your phone.** The easiest way to use ToneAI Kat, and for most players the only one they'll need.
+
+            **Download `toneai-kat-skill-v${{ steps.version.outputs.VERSION }}.zip`** from the Assets below.
+
+            1. Go to **claude.ai** and sign in. (Skills need a paid plan — Pro, Max, Team or Enterprise.)
+            2. Open **Settings → Capabilities → Skills**.
+            3. Click **Upload skill** and choose the ZIP. Don't unzip it first.
+            4. Done. ToneAI Kat is now in **every** chat, on the web and in the Claude mobile app.
+
+            Ask for a tone — *"dial in the Comfortably Numb solo, I'm on a KATANA MkII with a Les Paul"* — and it hands you a `.tsl` liveset to import with BOSS Tone Studio.
+
+            It asks once which KATANA and what you play, then remembers.
+
+            ### Desktop (agent CLI)
+
+            Download `toneai-katana-imprint-v${{ steps.version.outputs.VERSION }}.zip`, extract it, and open the folder in an agent CLI (Claude Code, Gemini CLI, Codex, OpenCode). No install step — the `.tsl` writer ships compiled, with no dependencies.
+
+            ---
+
+            **The agent never writes a `.tsl` itself.** It designs the tone, then a deterministic writer turns that into the liveset. A patch the amp rejects is worse than no patch — see THE ONE RULE.
+
+            Only the **KATANA MkII** is confirmed on real hardware. The other eight writers are built from the format and are very likely right, but nobody has put one into that amp yet. If you own one, load a patch and tell us — working or broken.
           files: |
             *-v*.zip
             dist/.imprint-checksum

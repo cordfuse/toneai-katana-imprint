@@ -226,5 +226,19 @@ if (fs.existsSync(claudeSettingsPath)) {
 execSync('git init', { cwd: DIST, stdio: 'ignore' });
 console.log('  Initialized git (required for agent config discovery)');
 
+// --- Step 10: Package the Claude Skill (claude.ai) ---
+//
+// ToneAI Kat in Claude web and on a phone: SKILL.md + the compiled writer, in one ZIP the
+// player imports once. The sandbox runs the same `node tool/cli.js write` the desktop app
+// runs, so the .tsl bytes are identical — one writer, no second implementation to drift.
+//
+// Built BESIDE dist/, never inside it: SKILL.md is a second copy of the persona, and
+// shipping it in the app tree would leave two identity documents for the agent to trip
+// over. Fails the build if the packaged writer cannot produce a .tsl.
+const { buildSkill } = require('./build-skill.js');
+const SKILL_DIST = path.join(ROOT, 'dist-skill');
+const skill = buildSkill(SKILL_DIST, DIST);
+console.log(`  Skill: dist-skill/ — SKILL.md + tool/ (${(skill.bytes / 1024 / 1024).toFixed(2)} MB), smoke test passed`);
+
 console.log(`\nBuild complete → ${DIST}`);
 console.log(`Open this directory in an agent CLI to test user mode.`);
