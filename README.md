@@ -4,6 +4,12 @@ Tell ToneAI Kat what you want to sound like — a song, an artist, or just a fee
 
 It runs on your existing AI account. No API key, no extra subscription.
 
+> **Work in progress — testers wanted.** This is under active development and
+> community feedback drives it. Only the KATANA MkII is verified on real hardware
+> (it's the amp the author owns). If you play any other KATANA, generate a tone,
+> load it, and report how it went — working or broken, that's the most useful
+> thing you can contribute.
+
 ---
 
 ## Getting started
