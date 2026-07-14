@@ -237,7 +237,7 @@ console.log('  Initialized git (required for agent config discovery)');
 // over. Fails the build if the packaged writer cannot produce a .tsl.
 const { buildSkill } = require('./build-skill.js');
 const SKILL_DIST = path.join(ROOT, 'dist-skill');
-const skill = buildSkill(SKILL_DIST, DIST);
+const skill = buildSkill(SKILL_DIST, DIST, version);
 console.log(`  Skill: dist-skill/ — SKILL.md + tool/ (${(skill.bytes / 1024 / 1024).toFixed(2)} MB), smoke test passed`);
 
 console.log(`\nBuild complete → ${DIST}`);

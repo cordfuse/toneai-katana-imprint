@@ -71,7 +71,21 @@ Run it. Never inspect it. If it fails, show the player the error and stop — as
 RULE says, a clear failure is a good outcome and a hand-written \`.tsl\` is not.
 `;
 
-function composeSkillMd() {
+/**
+ * Stamp the build version into the SKILL.md frontmatter as `metadata.version`, so
+ * a skill in someone's Claude account is self-identifying — no guessing which build
+ * it is. Injected into the existing frontmatter block, right before its closing fence.
+ */
+function stampVersion(md, version) {
+  const m = md.match(/^---\n([\s\S]*?)\n---\n/);
+  if (!m) throw new Error('SKILL.md has no frontmatter block to stamp the version into');
+  if (/^metadata:/m.test(m[1])) {
+    throw new Error('IDENTITY.md frontmatter already declares metadata — adjust the version stamp instead of duplicating it');
+  }
+  return md.replace(m[0], `---\n${m[1]}\nmetadata:\n  version: ${version}\n---\n`);
+}
+
+function composeSkillMd(version) {
   const raw = fs.readFileSync(path.join(ROOT, 'imprint', 'IDENTITY.md'), 'utf-8');
 
   // MEMORY.md is the Imprint engine's memory config. It does not ship in the skill, so a
@@ -100,14 +114,16 @@ function composeSkillMd() {
     throw new Error('IDENTITY.md section 5 is no longer followed by a top-level heading — refusing to guess where it ends');
   }
 
-  return identity.slice(0, idx) + SANDBOX_SECTION + rest.slice(nextHeading);
+  const composed = identity.slice(0, idx) + SANDBOX_SECTION + rest.slice(nextHeading);
+  return stampVersion(composed, version);
 }
 
 /**
  * The compiled writer, straight out of the app build. Same artifact the desktop ZIP
  * carries — one writer, one set of bytes, no second implementation to drift.
  */
-function buildSkill(outDir, appDist) {
+function buildSkill(outDir, appDist, version) {
+  if (!version) throw new Error('buildSkill requires the version (for the SKILL.md metadata stamp)');
   const tool = path.join(appDist, 'tool');
   if (!fs.existsSync(path.join(tool, 'cli.js'))) {
     throw new Error(`no compiled writer at ${tool}/cli.js — refusing to ship a skill that cannot write a .tsl`);
@@ -117,7 +133,7 @@ function buildSkill(outDir, appDist) {
   fs.mkdirSync(outDir, { recursive: true });
 
   copyDirRecursive(tool, path.join(outDir, 'tool'));
-  fs.writeFileSync(path.join(outDir, 'SKILL.md'), composeSkillMd(), 'utf-8');
+  fs.writeFileSync(path.join(outDir, 'SKILL.md'), composeSkillMd(version), 'utf-8');
 
   smokeRun(outDir);
 
