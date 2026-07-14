@@ -86,7 +86,7 @@ anything other than a MkII, load a patch and report back — working or broken.
 ```bash
 npm install
 npm run build      # tsc → dist/ (CommonJS, zero runtime dependencies)
-npm test           # 85 tests — 76 pass, 9 self-skip (see below)
+npm test           # 86 tests — 77 pass, 9 self-skip (see below)
 ```
 
 Compiled to CommonJS on purpose: the shipped app must run on a bare `node`, with no

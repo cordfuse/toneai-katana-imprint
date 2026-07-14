@@ -80,13 +80,19 @@ The writer now owns that byte. The gate is on for dirt, off for cleans, and scal
 
 That correction is applied **in code**, not asked for in a prompt: told the rule, the model gave a P-90 two more threshold points where the rule asks for eight to twelve. If a rule has to be true, enforce it in code.
 
+## Faithful defaults
+
+A patch is ~150 parameters; the model picks about 15. Every writer used to fill the other ~135 by cloning one real "donor" patch, so that player's compressor, EQ, and reverb tail rode under **every** tone the app produced — ask for clean surf with a touch of reverb and you still got a stranger's boomy, washed-out reverb underneath. The writers now start from each amp's **factory defaults**, so the parameters the model doesn't set are neutral, not inherited. Routing and assignments still match a real export byte-for-byte; only the tone tail resets.
+
+The KATANA MkI had a second, separate bug: its "GT" liveset stores the amp's native value for each selector, but the writer wrote the list index. On sparse selectors they diverge — asking for *Spring* reverb decoded as *Hall*, "almost opposite" to what was requested. Now fixed by writing the native value, matching the amp.
+
 ## Development
 
 Built on [Imprint](https://github.com/cordfuse/imprint) — the agent's identity, permissions, constraints and memory are `.md` files in `imprint/`, and `IMPRINT.md` is the engine that loads them.
 
 ```bash
 node src/build.js     # → ~/.imprint-test (dev), or ./dist + ./dist-skill (CI)
-cd tool && npm test   # 85 tests
+cd tool && npm test   # 86 tests
 ```
 
 `src/build.js` compiles the writer into the app and packages the Claude Skill, and **fails the build** if the writer cannot produce a `.tsl`. An app that cannot write a liveset is one whose agent gets tempted to hand-write one.
