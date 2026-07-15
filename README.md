@@ -92,6 +92,10 @@ A patch is ~150 parameters; the model picks about 15. Every writer used to fill 
 
 The KATANA MkI had a second, separate bug: its "GT" liveset stores the amp's native value for each selector, but the writer wrote the list index. On sparse selectors they diverge — asking for *Spring* reverb decoded as *Hall*, "almost opposite" to what was requested. Now fixed by writing the native value, matching the amp.
 
+## Booster selection
+
+The model chose the amp, EQ and effects well, but the booster/overdrive slot was a blind spot: nothing in its brief said *how* to pick one, so it would reach for a boost on tones that never needed it and lean on the same overdrive across very different songs. It now matches the booster to how the record was actually made — amp-driven rock and metal take their gain from the amp (booster off, or a light mid push like a Tube Screamer into a lead), while the transparent boosts (Centa, clean, treble) are kept for their real jobs: pushing a cranked amp, brightening, a solo lift. If the amp voice already carries the tone, the booster stays off.
+
 ## Development
 
 Built on [Imprint](https://github.com/cordfuse/imprint) — the agent's identity, permissions, constraints and memory are `.md` files in `imprint/`, and `IMPRINT.md` is the engine that loads them.
