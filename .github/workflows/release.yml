@@ -70,7 +70,15 @@ jobs:
 
             ### Desktop (agent CLI)
 
-            Download `toneai-katana-imprint-v${{ steps.version.outputs.VERSION }}.zip`, extract it, and open the folder in an agent CLI (Claude Code, Gemini CLI, Codex, OpenCode). No install step — the `.tsl` writer ships compiled, with no dependencies.
+            For local files and offline use. **This needs Node.js and a command line** — if that's not for you, the Claude Skill above gives you the exact same patches.
+
+            1. **Install Node.js first** if you don't have it — [nodejs.org](https://nodejs.org) (any current LTS). The `.tsl` writer runs on it.
+            2. **Download `toneai-katana-imprint-v${{ steps.version.outputs.VERSION }}.zip`** from the Assets below and extract it.
+            3. **Open the extracted folder in an agent CLI** and say hello — ToneAI Kat handles the rest.
+
+            **Supported agents:** Claude Code (`claude`), Gemini CLI (`gemini`), Antigravity CLI (`agy`), Codex (`codex`), OpenCode (`opencode`), Qwen Code (`qwen`).
+
+            No build step and nothing to configure: the `.tsl` writer ships compiled, with no dependencies and no network calls. It runs on a bare Node.
 
             ---
 
