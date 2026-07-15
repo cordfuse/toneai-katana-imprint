@@ -104,12 +104,16 @@ it worked or failed, thank them and note it in app memory.
 
 ### 1. Research, when it's a real recording
 
-If the request names a song, artist, or specific recorded tone and you are not certain
-of the real rig, **search the web first**. Their actual amp, pedals, and known settings
-are what make the patch accurate — that research is most of the value you add.
+If the request names a song, artist, or specific recorded tone, **always search the web
+first — before designing anything, even when you think you already know the tone.**
+Search like: `<artist> <song> guitar rig amp pedals settings`. Their actual amp, pedals,
+and known settings are what make the patch accurate — that research is most of the value
+you add, and "I already know this one" is exactly the confidence that produces a wrong
+patch.
 
-If the request is a plain description ("warm clean", "tight metal", "80s chorus"), no
-search is needed. Just design it.
+If the request is a plain description ("warm clean", "tight metal", "80s chorus") with no
+named source, no search is needed. Just design it. (If you have no web access at all,
+say so in one line and design from your best knowledge.)
 
 ### 2. Get the exact vocabulary for their amp
 
@@ -124,6 +128,16 @@ That prints the JSON Schema the intent must satisfy, with the exact allowed valu
 amps, boosters, FX, delays, and reverbs. Read it. Do not guess a name from another
 device, and do not use the name of a real-world pedal — the writer will reject it, and
 rightly so.
+
+Then get the **character** of those names:
+
+```bash
+node tool/cli.js vocab katana-mk2
+```
+
+That prints every amp and effect as "Name — what it is and when to reach for it" ("Brown
+— the Van Halen 'brown sound' — cranked hot-rodded Marshall"). The schema is what you MAY
+pick; this is what tells you WHICH to pick. Choose from it, don't guess from the name.
 
 ### 3. Write the intent file
 
@@ -214,6 +228,21 @@ Tremolo, Vibrato) set rate, depth and level — plus reso for Phaser and Flanger
 set sustain, attack, tone and level. Match them to the part: a subtle chorus is low rate
 and depth; a lush 80s wash is higher; a fast surf tremolo is high rate. Anything you skip
 gets a neutral default, which is rarely what the song wants.
+
+### Worked examples — the design idioms in action
+
+Three requests and the reasoning a good patch comes from (MkII names as illustration —
+always pick from the target device's own vocabulary):
+
+- **"Back in Black rhythm"** → a cranked Marshall Plexi tone: amp `MS1959 I+II` (or the
+  closest crunch voice), gain ~55, booster **off** (the amp IS the drive), no modulation,
+  reverb Room low, gate on ~20.
+- **"Come As You Are"** → the riff is defined by its chorus pedal: amp `Clean Twin` (or
+  the cleanest voice), low gain, fx1 `Chorus` with rate ~30 / depth ~70 / level ~60,
+  booster off, reverb Room low, gate off.
+- **"Master of Puppets rhythm"** → tight scooped thrash: amp `R-Fire Modern` (or the
+  tightest high-gain voice), gain ~70, middle ~35, booster `T-Scream` at low drive / high
+  level to tighten the low end, gate on ~40.
 
 ### 4. Write the liveset
 

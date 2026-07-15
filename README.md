@@ -96,13 +96,33 @@ The KATANA MkI had a second, separate bug: its "GT" liveset stores the amp's nat
 
 The model chose the amp, EQ and effects well, but the booster/overdrive slot was a blind spot: nothing in its brief said *how* to pick one, so it would reach for a boost on tones that never needed it and lean on the same overdrive across very different songs. It now matches the booster to how the record was actually made — amp-driven rock and metal take their gain from the amp (booster off, or a light mid push like a Tube Screamer into a lead), while the transparent boosts (Centa, clean, treble) are kept for their real jobs: pushing a cranked amp, brightening, a solo lift. If the amp voice already carries the tone, the booster stays off.
 
+## Accuracy pass (0.5.0)
+
+Three changes ported from the web app's accuracy work, aimed at whichever model is
+driving the skill — including the smaller ones on free Claude plans:
+
+- **Research is unconditional now.** Any named song or artist gets a web search before
+  any design — the old rule let the model skip the search when it *felt* certain, and
+  misplaced certainty is precisely how a small model produces a wrong patch.
+- **Every amp and effect has a character line.** A new `vocab` command prints the whole
+  vocabulary as "Name — what it is and when to reach for it" ("Brown — the Van Halen
+  'brown sound' — cranked hot-rodded Marshall"). The schema is what the model *may* pick;
+  this is what tells it *which* to pick. Bare names like "T-Scream" or "HM-2" were a
+  gear-knowledge test smaller models failed.
+- **Worked examples.** Three request→design walkthroughs in the skill teach the core
+  idioms: amp-driven gain (booster off), effect-defined tone, boosted tightening.
+
+The knob fields in the schema also gained value-range guidance (what gain 55 means, when
+a mid scoop is right), and a test now fails the suite if any device vocabulary gains a
+name without a description.
+
 ## Development
 
 Built on [Imprint](https://github.com/cordfuse/imprint) — the agent's identity, permissions, constraints and memory are `.md` files in `imprint/`, and `IMPRINT.md` is the engine that loads them.
 
 ```bash
 node src/build.js     # → ~/.imprint-test (dev), or ./dist + ./dist-skill (CI)
-cd tool && npm test   # 86 tests
+cd tool && npm test   # 111 tests
 ```
 
 `src/build.js` compiles the writer into the app and packages the Claude Skill, and **fails the build** if the writer cannot produce a `.tsl`. An app that cannot write a liveset is one whose agent gets tempted to hand-write one.
