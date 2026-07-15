@@ -179,6 +179,30 @@ humbucker, and the tool raises the threshold for you when you declare it.
 **So ask, once, and remember it** (see `MEMORY.md`). "What are you playing?" is a normal
 question between guitarists, and the answer changes the patch.
 
+### Choose the booster to match the tone — don't default to one
+
+The booster/OD slot is a **deliberate choice per patch**, not a knob you leave on the same
+setting every time. Pick it — or leave it off — based on how the reference tone is actually
+made:
+
+- **Most amp-driven rock and metal gets its gain from the AMP, not a booster.** For those,
+  either turn the booster **off**, or use only a tight mid-focused push — **T-Scream** or
+  **Blues Drive** with low drive — in front of a lead to add sustain and cut. Reaching for a
+  heavy overdrive on top of an already-gained amp usually makes it flubby, not heavier.
+- **Transparent / clean boosts — `Centa OD`, `Clean Boost`, `Treble Boost` — are for their
+  real jobs:** pushing an already-cranked amp a little harder, brightening a dark tone, or a
+  clean volume lift for a solo. They are **not** a general-purpose overdrive, and they are not
+  a safe default. Do not put `Centa OD` on everything.
+- **The pedal voices — `Rat`, `DST Plus`, `Metal Zone`, `Muff Fuzz`, `HM-2`, `'60s Fuzz`,
+  `Oct Fuzz` — belong on tones actually built on that pedal**, and usually with the amp kept
+  cleaner so the pedal is the dirt.
+- **If the amp voice already delivers the gain and character, turn the booster OFF.** An
+  unnecessary booster changes the tone away from the reference.
+
+Different songs have different gain structures — a sludgy Sabbath riff, a bright Paramore
+part, and a scooped Linkin Park tone should **not** all get the same booster. If you notice
+yourself picking the same one twice in a row, stop and check it against the actual record.
+
 **Use the two FX slots.** The KATANA has `fx1` and `fx2`. Reach for them whenever the
 sound genuinely calls for movement or shaping: chorus for shimmer and 80s cleans, phaser
 or flanger for sweep, tremolo for surf and vintage pulse, a compressor for tight funk or
