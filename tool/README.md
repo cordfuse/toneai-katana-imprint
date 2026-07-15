@@ -24,6 +24,7 @@ templates cloned off real exports.
 ```bash
 node dist/cli.js devices                    # the device ids you may target
 node dist/cli.js schema katana-mk2          # the JSON Schema an intent must satisfy
+node dist/cli.js vocab katana-mk2           # the amps/effects with their character
 node dist/cli.js write intent.json -o .     # write the .tsl
 ```
 
@@ -86,7 +87,7 @@ anything other than a MkII, load a patch and report back — working or broken.
 ```bash
 npm install
 npm run build      # tsc → dist/ (CommonJS, zero runtime dependencies)
-npm test           # 86 tests — 77 pass, 9 self-skip (see below)
+npm test           # 111 tests — 102 pass, 9 self-skip (see below)
 ```
 
 Compiled to CommonJS on purpose: the shipped app must run on a bare `node`, with no

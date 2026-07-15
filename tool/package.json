@@ -7,7 +7,7 @@
   "bin": { "katana-tsl": "dist/cli.js" },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "tsx --test src/**/__tests__/*.test.ts",
+    "test": "tsx --test \"src/**/__tests__/*.test.ts\"",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {

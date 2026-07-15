@@ -20,6 +20,7 @@
 // Commands
 //   devices                       list the device ids you may target
 //   schema  <device>              print the JSON Schema the intent must satisfy
+//   vocab   <device>              the device's amps/effects with their character
 //   write   <intent.json> [-o d]  write the .tsl; prints the path it wrote
 //
 // Intent file shape:  { "device": "katana-mk2", "patch": { ...TonePatch } }
@@ -34,6 +35,7 @@ import {
   type TonePatch,
 } from './index'
 import { buildToneSchema } from './schema'
+import { describedList, type ToneNameCategory } from './descriptions'
 import { vocabForDevice } from './vocab'
 import {
   KATANA_DEVICES, isKatanaDevice, isHardwareConfirmed, deviceLabel, isPickupNoise,
@@ -136,6 +138,33 @@ function cmdSchema(device: string): void {
   console.log(JSON.stringify(buildToneSchema(vocabForDevice(device)), null, 2))
 }
 
+/**
+ * The device's amp/effect names WITH their character — "Name — what it is and
+ * when to reach for it", one category per block. The schema constrains what the
+ * model MAY pick; this is what tells it WHICH to pick. Bare enum names are a
+ * gear-knowledge test ("Brown"? "T-Scream"? "HM-2"?) that smaller models fail —
+ * they pick by vibes and the tone comes out wrong.
+ */
+function cmdVocab(device: string): void {
+  if (!isKatanaDevice(device)) {
+    throw new UsageError(`unknown device "${device}". Run \`${PROG} devices\` for the list.`)
+  }
+  const vocab = vocabForDevice(device)
+  const blocks: [string, readonly string[], ToneNameCategory][] = [
+    ['Amps', vocab.amps, 'amp'],
+    ['Overdrive/booster', vocab.boosters, 'booster'],
+    ['Mod / FX (fx1, fx2)', vocab.fx, 'fx'],
+    ['Delay', vocab.delays, 'delay'],
+    ['Reverb', vocab.reverbs, 'reverb'],
+  ]
+  console.log(`${deviceLabel(device)} — every name below is "Name — what it is and when to reach for it".\n`)
+  for (const [title, names, category] of blocks) {
+    console.log(`## ${title}`)
+    for (const line of describedList(names, category).split(' | ')) console.log(`- ${line}`)
+    console.log('')
+  }
+}
+
 function cmdWrite(file: string, outDir: string): void {
   const { device, patch: raw, noise } = readIntent(file)
 
@@ -187,6 +216,11 @@ function main(argv: string[]): number {
         cmdSchema(rest[0])
         return 0
 
+      case 'vocab':
+        if (!rest[0]) throw new UsageError(`usage: ${PROG} vocab <device>`)
+        cmdVocab(rest[0])
+        return 0
+
       case 'write': {
         const args = rest.filter(a => a !== '-o' && a !== '--out')
         const oi = rest.findIndex(a => a === '-o' || a === '--out')
@@ -204,6 +238,7 @@ function main(argv: string[]): number {
           `${PROG} — write a BOSS Tone Studio liveset from a tone intent file\n\n` +
           `  ${PROG} devices                     list target devices\n` +
           `  ${PROG} schema <device>             the JSON Schema an intent must satisfy\n` +
+          `  ${PROG} vocab <device>              the device's amps/effects with their character\n` +
           `  ${PROG} write <intent.json> [-o d]  write the .tsl\n`,
         )
         return 0
