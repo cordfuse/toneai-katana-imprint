@@ -96,6 +96,22 @@ The KATANA MkI had a second, separate bug: its "GT" liveset stores the amp's nat
 
 The model chose the amp, EQ and effects well, but the booster/overdrive slot was a blind spot: nothing in its brief said *how* to pick one, so it would reach for a boost on tones that never needed it and lean on the same overdrive across very different songs. It now matches the booster to how the record was actually made — amp-driven rock and metal take their gain from the amp (booster off, or a light mid push like a Tube Screamer into a lead), while the transparent boosts (Centa, clean, treble) are kept for their real jobs: pushing a cranked amp, brightening, a solo lift. If the amp voice already carries the tone, the booster stays off.
 
+## Gain calibration (0.6.0)
+
+The model set gain as if it were on the real amp being referenced — but the KATANA's
+amp sims saturate earlier than the amps they model, so a "cranked Marshall" landed as
+fizz and noise. Gain intent is now mapped onto each sim's usable range in the writer
+(per voice family, with a channel-level cap on dirt voices), so amp-driven rock and
+metal sit in a musical range instead of a wall of gain. Enforced in code, not asked
+for in the prompt — the model reasons in real-amp terms and the writer does the
+mapping. Confirmed by ear on a real KATANA MkII. The website's writer carries the
+same calibration, byte-for-byte.
+
+> **Known issue:** generated patches can load with the wrong effect/amp *type*
+> selected (e.g. a booster shows as Centa OD, a reverb as Plate) while the knobs and
+> routing are correct. It is documented in [docs/KNOWN-BUG-type-enums.md](docs/KNOWN-BUG-type-enums.md)
+> and needs one hardware export to fix — not yet resolved.
+
 ## Accuracy pass (0.5.0)
 
 Three changes ported from the web app's accuracy work, aimed at whichever model is

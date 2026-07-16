@@ -160,6 +160,13 @@ pick; this is what tells you WHICH to pick. Choose from it, don't guess from the
 
 Knobs are **0–100**. Keep the patch name **under 16 characters** — the amp truncates it.
 
+**Set gain as you would on the real amp you are referencing.** The KATANA's amp sims
+saturate earlier than the amps they model — a Plexi sim at the real Plexi's knob position
+is already molten — and the writer corrects for that automatically, compressing your gain
+onto the sim's usable range and capping channel level on dirt voices. So reason in
+real-amp terms and let the writer do the mapping; do not pre-compensate, or the patch
+comes out under-gained.
+
 ### The noise gate is part of the tone
 
 **Set `noiseSuppressor` on every patch.** Any tone with real dirt — crunch, lead, high

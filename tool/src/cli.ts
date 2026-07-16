@@ -36,6 +36,7 @@ import {
 } from './index'
 import { buildToneSchema } from './schema'
 import { describedList, type ToneNameCategory } from './descriptions'
+import { calibrateGainForDevice } from './gain-calibration'
 import { vocabForDevice } from './vocab'
 import {
   KATANA_DEVICES, isKatanaDevice, isHardwareConfirmed, deviceLabel, isPickupNoise,
@@ -168,9 +169,17 @@ function cmdVocab(device: string): void {
 function cmdWrite(file: string, outDir: string): void {
   const { device, patch: raw, noise } = readIntent(file)
 
-  // THE GATE IS NOT NEGOTIABLE, and it is not left to the agent.
+  // GAIN FIRST, THEN THE GATE — both corrections applied here in code, not
+  // trusted to the model (see gain-calibration.ts and the gate notes below).
   //
-  // Two corrections, both applied here rather than trusted to the model:
+  // The model dials gain as if the KATANA's 0-100 were the real amp's knob; the
+  // sims saturate far earlier, and a MkII owner reported the result: everything
+  // over-gained, over-loud, noisy. The gain intent is compressed onto the sim's
+  // usable range BEFORE the gate is derived, so the gate scales with the gain
+  // the amp will actually run.
+  const gained = calibrateGainForDevice(raw)
+
+  // THE GATE IS NOT NEGOTIABLE, and it is not left to the agent.
   //
   //   1. A patch with no noiseSuppressor gets one derived from its gain. Every patch
   //      this project ever produced shipped with the gate OFF, because the writer never
@@ -179,8 +188,8 @@ function cmdWrite(file: string, outDir: string): void {
   //   2. A single coil gets a higher threshold than a humbucker. Told the rule in a
   //      prompt, a model gave a P-90 two more points where the rule asks for 8-12. A
   //      prompt is guidance; this is a guarantee.
-  const ns = calibrateGateForPickup(raw.noiseSuppressor ?? defaultNoiseSuppressor(raw), noise)
-  const patch: TonePatch = { ...raw, noiseSuppressor: ns }
+  const ns = calibrateGateForPickup(gained.noiseSuppressor ?? defaultNoiseSuppressor(gained), noise)
+  const patch: TonePatch = { ...gained, noiseSuppressor: ns }
 
   // allowUnvalidated: every writer is offered, but the confidence is reported
   // rather than hidden — see the note printed below.
